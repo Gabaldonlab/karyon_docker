@@ -37,22 +37,9 @@ RUN echo "SPAdes installed"
 RUN echo "Installing Trimmomatic"
 RUN echo "Trimmomatic installed"
 # --------------------------------------- 
-# Redundans (.tar.gz)
-# RUN echo "Installing Redundans"
-# RUN unzip redundans-master.zip
-# RUN echo "Redundans installed"
-# --------------------------------------- 
 # Picard-tools (folder)
 RUN echo "Installing Picard-tools"
 RUN echo "Picard-tools installed"
-# ---------------------------------------
-# Just installed in Redundans
-# RUN echo "Installing BWA"
-# RUN tar -xvf bwa-0.7.15.tar.bz2 && \
-# 	cd bwa-0.7.15 && \
-# 	make && \
-# 	cd ../
-# RUN echo "BWA installed"
 # ---------------------------------------
 # nQuire (folder)
 RUN echo "Installing nQuire"
