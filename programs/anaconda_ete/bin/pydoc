@@ -1,0 +1,5 @@
+#!/users/tg/mnaranjo/anaconda_ete/bin/python
+
+import pydoc
+if __name__ == '__main__':
+    pydoc.cli()

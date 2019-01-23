@@ -1,0 +1,3 @@
+# Ignore shared files
+shared/*
+data/*
