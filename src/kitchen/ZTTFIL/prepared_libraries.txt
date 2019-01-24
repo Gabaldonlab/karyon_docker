@@ -1,0 +1,2 @@
+libraries/trimmomatic/ERR2600670_1.pe.fastq.gz	277	44.1352302043	413297626	33	1	libraries/trimmomatic/ERR2600670_2.pe.fastq.gz	fastq	gzip
+libraries/trimmomatic/ERR2600670_2.pe.fastq.gz	227	65.5006215225	422219242	33	2	libraries/trimmomatic/ERR2600670_1.pe.fastq.gz	fastq	gzip

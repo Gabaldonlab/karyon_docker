@@ -20,7 +20,7 @@ current="$(pwd)/shared"
 
 echo "Select your option > "
 echo "1º Build image"
-echo "2º Create and start container"
+echo "2º Create container"
 echo "3º Start container "
 echo "4º Stop container"
 echo "5º Remove container"
@@ -32,7 +32,14 @@ read menu
 if [ "$menu" = "1" ]; then
 	docker build -t cgenomics/karyonpip:1.0 .
 elif [ "$menu" = "2" -o "$menu" = "3" -o "$menu" = "4" -o "$menu" = "5" ]; then
-	echo "First type the alias for your container > "
+	if [ "$menu" = "2" ]; then
+		echo "Type the alias of the container you want to create > "
+	elif [ "$menu" = "3" ]; then
+		echo "Type the alias of the container you want to start > "
+	elif [ "$menu" = "4" ]; then
+		echo "Type the alias of the container you want to stop > "
+	fi
+	
 	read alias
 	checkalias $alias
 	result=$?
@@ -43,7 +50,7 @@ elif [ "$menu" = "2" -o "$menu" = "3" -o "$menu" = "4" -o "$menu" = "5" ]; then
 		echo "Your shared folder: $current"
 		if [ "$menu" = "2" ]; then
 			echo "Running container"
-			docker run -dit --name=$alias -v $current:/home/karyonpip_project/shared --rm cgenomics/karyonpip:1.0
+			docker run -dit --name=$alias -v $current:/root/src/karyon/shared --rm cgenomics/karyonpip:1.0
 		elif [ "$menu" = "3" ]; then
 			echo "Starting container"
 			docker exec -it $alias /bin/bash

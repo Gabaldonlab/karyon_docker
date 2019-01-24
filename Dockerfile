@@ -1,8 +1,10 @@
 FROM lpryszcz/redundans
 MAINTAINER Manu Molina (CRG)
 
-COPY ./programs /home/karyonpip_project
-WORKDIR "/home/karyonpip_project"
+COPY ./src/ /root/src/karyon
+RUN mkdir -p /root/src/karyon/shared
+
+WORKDIR /root/src/karyon/dependencies/
 # --------------------------------------- 
 RUN echo "Installing Git + wget + nano..."
 RUN apt-get update && \
@@ -12,7 +14,6 @@ RUN apt-get update && \
 	apt-get install -y nano
 RUN apt-get install -y build-essential
 RUN apt install -y python-pip
-# RUN apt-get install --reinstall make
 RUN echo "Git + wget + nano installed"
 # ---------------------------------------
 RUN echo "Installing GATK"
@@ -53,5 +54,8 @@ RUN echo "anaconda_ete installed"
 RUN pip install --upgrade pip
 RUN pip install numpy
 RUN pip install biopython
-RUN python -m pip install --user numpy scipy matplotlib ipython jupyter pandas sympy nose
+RUN pip install psutil
+RUN pip install pysam
+RUN python -m pip install --user scipy matplotlib ipython jupyter pandas sympy nose seaborn
 # ---------------------------------------
+WORKDIR "/root/src/karyon"
