@@ -3,6 +3,7 @@ MAINTAINER Manu Molina (CRG)
 
 COPY ./src/ /root/src/karyon
 RUN mkdir -p /root/src/karyon/shared
+RUN echo 'alias karyon="python /root/src/karyon/src/scripts/karyon.py"' >> ~/.bashrc
 
 WORKDIR /root/src/karyon/dependencies/
 # --------------------------------------- 

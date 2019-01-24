@@ -42,9 +42,9 @@ os.system("bgzip -c "+ args.vcf + " > " + args.vcf + ".gz")
 os.system("tabix -p vcf "+ args.vcf+".gz")
 vcf_file = pysam.VariantFile(args.vcf+".gz", 'r')
 bam_file = pysam.AlignmentFile(args.bam, 'rb')
-nQuire = "/home/mnaranjo/users/tg/mnaranjo/scripts_and_stuff/nQuire/nQuire"
-kitchen = "/home/mnaranjo/users/tg/mnaranjo/scripts_and_stuff/projects/mnaranjo/karyon_pipeline/kitchen/"
-KAT="/home/mnaranjo/anaconda3/bin/kat"
+nQuire = "/root/src/karyon/src/dependencies/nQuire/nQuire"
+kitchen = "/root/src/karyon/src/kitchen/"
+KAT="/root/src/karyon/src/dependencies/anaconda3/bin/kat"
 
 lendict = {}
 fastainput = SeqIO.index(args.fasta, "fasta")

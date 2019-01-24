@@ -15,8 +15,8 @@ from Bio import SeqIO
 vcf_file = pysam.VariantFile(sys.argv[1], 'r')
 bam_file = pysam.AlignmentFile(sys.argv[2], 'rb')
 fasta_file = sys.argv[3]
-nQuire = "/home/mnaranjo/users/tg/mnaranjo/scripts_and_stuff/nQuire/nQuire"
-kitchen = "/home/mnaranjo/users/tg/mnaranjo/scripts_and_stuff/projects/mnaranjo/karyon_pipeline/kitchen/"
+nQuire = "/root/src/karyon/src/dependencies/nQuire/nQuire"
+kitchen = "/root/src/karyon/src/kitchen/"
 window_size, step = 1000, 1000
 counter = 20
 
