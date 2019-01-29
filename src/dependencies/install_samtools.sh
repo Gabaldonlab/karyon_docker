@@ -4,37 +4,39 @@
 # Date: 23/01/2019
 # version: 1.0
 ###################################################
-apt-get update
-apt-get install -y gcc
-apt-get install -y make
-apt-get install -y libbz2-dev
-apt-get install -y zlib1g-dev
-apt-get install -y libncurses5-dev 
-apt-get install -y libncursesw5-dev
-apt-get install -y liblzma-dev
+docker_workdir=/root/src/karyon/dependencies
 
-echo "Installing htslib-1.9"
-tar -vxjf htslib-1.9.tar.bz2
-cd htslib-1.9
-make
 
-echo "Installing samtools-1.9"
+htslib_version=1.9
+samtools_version=1.9
+bcftools_version=1.9
+
+echo "Installing htslib-$htslib_version"
+tar -vxjf $docker_workdir/htslib-$htslib_version.tar.bz2
+cd htslib-$htslib_version
+$docker_workdir/htslib-$htslib_version/make
 cd ..
-tar -vxjf samtools-1.9.tar.bz2
-cd samtools-1.9
-make
 
-echo "Installing bcftools-1.9"
-cd ..
-tar -vxjf bcftools-1.9.tar.bz2
-cd bcftools-1.9
-make
+# echo "Installing samtools-$samtools_version"
+# tar -vxjf $docker_workdir/samtools-$samtools_version.tar.bz2
+# cd samtools-$samtools_version
+# make
+# cd ..
 
-mv htslib-1.9 /usr/bin/htslib
-mv samtools-1.9 /usr/bin/samtools
-mv bcftools-1.9 /usr/bin/bcftools
+# echo "Installing bcftools-$bcftools_version"
+# tar -vxjf $docker_workdir/bcftools-$bcftools_version.tar.bz2
+# cd bcftools-$bcftools_version
+# make
+# cd ..
+
+pwd
+ls -la
+
+mv $docker_workdir/htslib-$htslib_version /usr/bin/htslib
+# mv $docker_workdir/samtools-$samtools_version /usr/bin/samtools
+# mv $docker_workdir/bcftools-$bcftools_version /usr/bin/bcftools
 
 echo "Export PATH"
 export PATH="$PATH:/usr/bin/htslib"
 export PATH="$PATH:/usr/bin/samtools"
-export PATH="$PATH:/usr/bin/bcftools"
+# export PATH="$PATH:/usr/bin/bcftools"

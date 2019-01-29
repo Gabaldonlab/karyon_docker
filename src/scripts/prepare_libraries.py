@@ -154,6 +154,7 @@ def type_parse(fastq, hypo_dict, mean_read_dict):
 			library_size_dict[i] = (os.stat(i).st_size)
 	return type_dict, library_size_dict
 
+# this function creates the prepared_libraries.txt file
 def preparation(initial_fastq, sample_size, output_report):
 	fastq = remove_false_files(initial_fastq)
 	mean_read_dict = {}

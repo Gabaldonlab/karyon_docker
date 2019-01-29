@@ -62,7 +62,7 @@ def trimming (library_file, path, commands, job_output, output, remove_originals
 	for i in single_list:
 		if i[0] == '.': i = i[1:]
 		output_string = output_string + "java -jar " + trimmo_exec + " SE -phred" + str(i[2]) + " " + i[0] + " " + i[1] + " " +output+i[0][:i[0].rfind("/")+1]+"parsed_"+\
-		"ILLUMINACLIP:" + path+"adapters/All_adapters.fa" + ":2:30:10 "+commands+"\n"
+		" ILLUMINACLIP:" + path+"adapters/All_adapters.fa" + ":2:30:10 "+commands+"\n"
 		if remove_originals == True:
 			to_remove.append(i[0])
 

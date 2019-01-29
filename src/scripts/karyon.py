@@ -109,7 +109,6 @@ home = config_dict["karyon"][0]
 prepared_libs = home + "kitchen/" + job_ID + "/prepared_libraries.txt"
 
 
-
 ###Checks that the output is not a file. If it does not exist, it creates it.###
 if os.path.isdir(args.output_directory) == False:
 	if os.path.isfile == True: 
@@ -124,7 +123,6 @@ os.system("mkdir "+ home + "kitchen/"+job_ID)
 ###Parses the libraries and checks their parameters for downstream analyses. Also performs trimming.###
 libs = ''
 for i in args.libraries:
-	print i
 	libs = libs + " " + i
 preparation(libs.split(), 10000, prepared_libs)
 
@@ -162,7 +160,7 @@ def select_champion(fastq):
 		if chunk[5] == "2": continue
 		else:
 			parse_dict[chunk[0]] = chunk[1:]
-	champion=[0,'']		
+	champion=[0,'']
 	if args.favourite == False:
 		for element in parse_dict:
 			if int(parse_dict[element][2]) > champion[0]:

@@ -11,19 +11,19 @@
 #If you want to use other parameters we recommend you to copy this file in other location and modify as you please. Naturally, we cannot promise you that the whole thing will work if you use a modified version of the configuration file, so try to be sure of any change you make
 
 +karyon
-@/root/src/karyon/src/
+@/root/src/karyon/
 
 +SOAPdeNovo
-@/root/src/karyon/src/dependencies/SOAPdenovo2-bin-LINUX-generic-r240/SOAPdenovo-127mer
+@/root/src/karyon/dependencies/SOAPdenovo2-bin-LINUX-generic-r240/SOAPdenovo-127mer
 >-K 63
 >-R
 
 +SPAdes
-@/root/src/karyon/src/dependencies/SPAdes-3.9.0-Linux/
+@/root/src/karyon/dependencies/SPAdes-3.9.0-Linux/
 >--only-assembler
 
 +trimmomatic
-@/root/src/karyon/src/dependencies/Trimmomatic-0.36/
+@/root/src/karyon/dependencies/Trimmomatic-0.36/
 
 +Redundans
 @/root/src/redundans/
@@ -32,16 +32,16 @@
 @
 
 +picard-tools
-@/root/src/karyon/src/dependencies/picard-tools-1.78/
+@/root/src/karyon/dependencies/picard-tools-1.78/
 
 +GATK
-@/root/src/karyon/src/dependencies/gatk-4.0.4.0/gatk
+@/root/src/karyon/dependencies/gatk-4.0.4.0/gatk
 
 +BWA
 @
 
 +nQuire
-@/root/src/karyon/src/dependencies/nQuire/nQuire
+@/root/src/karyon/dependencies/nQuire/nQuire
 
 +KAT
-@/root/src/karyon/src/dependencies/anaconda_ete/bin/kat
+@/root/src/karyon/dependencies/anaconda_ete/bin/kat
