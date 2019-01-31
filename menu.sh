@@ -33,7 +33,7 @@ checkAliasAndWork() {
                     Your shared folder: $current \n
                     Running container: \n `docker run -dit --name=$2 -v $current:/root/src/karyon/shared --rm cgenomics/karyonpip:1.0`" 0 0;;
             #3)  dialog --infobox "Starting container:-\n `docker exec -it $2 /bin/bash`" 0 0;;
-            3)  dialog --infobox "You are now inside $2\n" 0 0
+            3)  dialog --infobox "You are now inside $2. Type 'exit' to back.\n" 0 0
                 docker exec -it $2 /bin/bash
                 break;;
             4)  dialog --infobox "Stoping container: \n `docker stop $2`" 0 0;;

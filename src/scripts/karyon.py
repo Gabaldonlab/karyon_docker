@@ -180,9 +180,9 @@ if args.reference == False:
 karyonjobfile = open(true_output+name+"_karyon.job", 'a')
 karyonjobfile.write("\n")
 if args.reference == False:
-	karyonjobfile.write("python "+config_dict['Redundans'][0]+"redundans.py"+" -f "+true_output+"dipspades/consensus_contigs.fasta -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" -m "+str(ram_limit)+" "+config_dict["Redundans"][1])
+	karyonjobfile.write("python "+config_dict['Redundans'][0]+"redundans.py"+" -f "+true_output+"dipspades/consensus_contigs.fasta -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
 else:
-	karyonjobfile.write("python "+config_dict['Redundans'][0]+"redundans.py"+" -f "+ args.reference + "-o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" -m "+str(ram_limit)+" "+config_dict["Redundans"][1])
+	karyonjobfile.write("python "+config_dict['Redundans'][0]+"redundans.py"+" -f "+ args.reference + "-o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
 karyonjobfile.close()
 
 #5) Create job files
