@@ -7,6 +7,7 @@ ARG SPAdes_VERSION=3.9.0
 ARG HTSLIB_VERSION=1.9
 ARG SAMTOOLS_VERSION=1.9
 ARG BCFTOOLS_VERSION=1.9
+ARG BWA_VERSION=0.7.15
 
 COPY ./src/ /root/src/karyon
 RUN mkdir -p /root/src/karyon/shared
@@ -91,8 +92,6 @@ RUN tar -vxjf $SOURCE_DIR/htslib-1.9.tar.bz2
 RUN tar -vxjf $SOURCE_DIR/samtools-1.9.tar.bz2
 RUN tar -vxjf $SOURCE_DIR/bcftools-1.9.tar.bz2
 
-# RUN make prefix=/usr/bin install
-
 WORKDIR $SOURCE_DIR/htslib-1.9
 RUN make
 WORKDIR $SOURCE_DIR/samtools-1.9
@@ -101,6 +100,15 @@ WORKDIR $SOURCE_DIR/bcftools-1.9
 RUN make
 ENV PATH "/root/src/karyon/dependencies/samtools-1.9/:${PATH}"
 RUN echo "Samtools installed"
+# ---------------------------------------
+# BWA (.tar.gz)
+RUN echo "Installing BWA"
+WORKDIR $SOURCE_DIR
+RUN tar -vxjf bwa-0.7.15.tar.bz2
+WORKDIR $SOURCE_DIR/bwa-0.7.15
+RUN make 
+ENV PATH "/root/src/karyon/dependencies/bwa-0.7.15/:${PATH}"
+RUN echo "BWA installed"
 # ---------------------------------------
 # Clean cache
 WORKDIR "/root/src/karyon"
