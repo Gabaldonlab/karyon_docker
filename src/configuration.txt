@@ -35,7 +35,7 @@
 @/root/src/karyon/dependencies/picard-tools-1.78/
 
 +GATK
-@/root/src/karyon/dependencies/gatk-4.0.4.0/gatk
+@/root/src/karyon/dependencies/gatk-4.0.12.0/gatk
 
 +BWA
 @
@@ -45,3 +45,7 @@
 
 +KAT
 @/root/src/karyon/dependencies/anaconda_ete/bin/kat
+
++bcftools
+@
+# @/root/src/karyon/dependencies/bcftools-1.9/

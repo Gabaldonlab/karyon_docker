@@ -77,7 +77,7 @@ RUN pip install pysam
 # RUN python -m pip install --user scipy matplotlib ipython jupyter pandas sympy nose seaborn
 RUN python -m pip install --user matplotlib ipython jupyter pandas sympy nose seaborn
 # ---------------------------------------
-RUN echo "Installing Samtools"
+RUN echo "Installing Samtools, Bcftools and Htslib"
 RUN apt-get update
 RUN apt-get install -y gcc
 RUN apt-get install -y make
@@ -99,7 +99,8 @@ RUN make
 WORKDIR $SOURCE_DIR/bcftools-1.9
 RUN make
 ENV PATH "/root/src/karyon/dependencies/samtools-1.9/:${PATH}"
-RUN echo "Samtools installed"
+ENV PATH "/root/src/karyon/dependencies/bcftools-1.9/:${PATH}"
+RUN echo "Samtools, Bcftools and Htslib installed"
 # ---------------------------------------
 # BWA (.tar.gz)
 RUN echo "Installing BWA"

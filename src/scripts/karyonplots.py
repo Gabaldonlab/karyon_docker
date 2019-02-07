@@ -122,7 +122,8 @@ def extract_pileup_data (pileup_file, window_size):
 				for i in range(1, (int(chunk[1])-curr_pos)/window_size):
 					cov_dict[curr_scaffold+"_"+str(curr_pos+(i*window_size))] = 0
 			curr_pos = curr_pos + (window_size*((int(chunk[1])-curr_pos)/window_size))
-			coverage = [int(chunk[3])]
+			coverage = [int(chunk[7][chunk[7].find('=')+1: chunk[7].find(';')])]
+			#coverage = [ int(chunk[7].split(';')[0].split('=')[1]) ]
 		else: 
 			coverage.append(int(chunk[3]))
 	pileup_file.seek(0)
@@ -463,14 +464,20 @@ def nQuire_plot(value_list, window_size, newpath):
 	
 
 def katplot(fasta, library, KAT, out):
-	os.system(KAT+" comp -o "+out+" "+library+" "+fasta+" > "+out+".katreport")
+	# os.system(KAT+" comp -o "+out+" "+library+" "+fasta+" > "+out+".katreport")
+	cmd = KAT+" comp -o "+out+" "+library+" "+fasta+" > "+out+".katreport"
+	returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
+	print '###############'
+	print ('KAT:', returned_value)
+	print '###############'
+
 
 def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, kitchen, newpath, counter, kitchenID, out_name):
 	if out_name==False:
 		outname = ''
 	newpath = newpath+"/"+out_name
-	os.system("bgzip -c "+ vcf+ " > " + vcf + ".gz")
-	os.system("tabix -p vcf "+ vcf+".gz")
+	# os.system("bgzip -c "+ vcf+ " > " + vcf + ".gz")
+	# os.system("tabix -p vcf "+ vcf+".gz")
 	vcf_file = open(vcf+".gz", 'r')
 	bam_file = pysam.AlignmentFile(bam, 'rb')
 	kitchen = kitchen+kitchenID
@@ -480,7 +487,7 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	for i in fastainput:
 		lendict[i] = len(fastainput.get_raw(i).decode())
 	step = window_size/2
-	VCF = pysam.VariantFile(vcf+".gz", 'r')
+	# VCF = pysam.VariantFile(vcf+".gz", 'r')
 	if newpath.find("/") > -1:
 		originalpath=os.getcwd()
 	os.makedirs(newpath+"nQuireplots_ws"+str(window_size))
@@ -493,7 +500,7 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	fair_coin_scaff(vcf, window_size, counter, newpath)
 	cov_v_len(mpileup, fastainput, newpath)
 	katplot(fasta_file, library, KAT, newpath)
-	window_walker(window_size, step, VCF, fasta_file, bam, nQuire, kitchen, newpath, counter)
+	# window_walker(window_size, step, VCF, fasta_file, bam, nQuire, kitchen, newpath, counter)
 
 #newpath = args.output[:args.output.rfind("/")]+"/"
 #allplots(window_size, vcf_file, fasta_file, bam_file, mpileup, library, nQuire, KAT, kitchen, newpath, counter, kitchenID)

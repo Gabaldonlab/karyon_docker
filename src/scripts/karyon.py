@@ -75,7 +75,6 @@ if __name__ == '__main__':
 	parser.add_argument('-n', '--nodes', default=False, help='Number of computation nodes to use. If set a number higher than total, it will use total. If set a number lower than total, it will calculate memory usage based fraction of nodes set respect total existing nodes.')
 	parser.add_argument('--max_scaf2plot', default=20, help="Maximum number of scaffolds to plot for scaffold-specific plots")
 
-
 	args = parser.parse_args()
 
 	###Defines the location of configuration.txt if setting by default###
@@ -126,8 +125,8 @@ if __name__ == '__main__':
 			sys.exit(1)
 		else:
 			os.mkdir(args.output_directory)
-	else:
-		os.rmdir(args.output_directory)
+	elif :
+		# os.rmdir(args.output_directory)
 		os.mkdir(args.output_directory)
 	os.system("mkdir "+ home + "kitchen/"+job_ID)
 
@@ -205,11 +204,30 @@ if __name__ == '__main__':
 	#6) Creates a job file that calls all the job files in the proper order
 
 	#7) We create the plots
+	if args.no_redundans == True:
+		if args.reference == True:
+			reduced_assembly = args.reference
+		else:
+			reduced_assembly = true_output+"dipspades/consensus_contigs.fasta"
+	else: 
+		reduced_assembly = true_output+"redundans_output/contigs.fa"
+
 	counter = int(args.max_scaf2plot)
 	if args.no_plot == False:
 		from karyonplots import katplot, allplots
-		katplot(true_output+"redundans_output/contigs.fa", champion[1], config_dict["KAT"][0], true_output)
-		allplots(int(args.window_size), true_output+name+".raw.vcf", true_output+"redundans_output/scaffolds.filled.fa", true_output+name+".sorted.bam", true_output+name+".mpileup", os.path.abspath(champion[-1]), config_dict['nQuire'][0], config_dict["KAT"][0], home + "kitchen/"+job_ID+"/", true_output, counter, job_ID, name)
+		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output)
+		allplots(int(args.window_size), 
+			true_output+name+".raw.vcf", 
+			reduced_assembly, 
+			true_output+name+".sorted.bam", 
+			true_output+name+".mpileup", 
+			os.path.abspath(champion[-1]), 
+			config_dict['nQuire'][0], 
+			config_dict["KAT"][0], 
+			home + "kitchen/"+job_ID+"/", 
+			true_output, 
+			counter, 
+			job_ID, name)
 
 	###We clean the kitchen###
 	if args.dirty_kitchen == True:

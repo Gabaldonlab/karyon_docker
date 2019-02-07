@@ -1,0 +1,7 @@
+.git
+.gitignore
+/shared/*
+Dockerfile
+README.md
+env.*
+*.tar.gz
