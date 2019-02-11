@@ -130,18 +130,21 @@ docker run give.example.org/of/your/container:v0.2.1 bash
 * `/your/karyon/location/src/dependencies` - Folder with programs used by Karyon script
 
 
-## Built With (To-Do)
+## Built With 
+(To-Do)
 
 * List the software v0.1.3
 * And the version numbers v2.0.0
 * That are in this container v0.3.2
 
-## Find Us (To-Do)
+## Find Us 
+(To-Do)
 
 * [GitHub](https://github.com/Gabaldonlab)
 <!-- * [Quay.io](https://quay.io/repository/your/docker-repository) -->
 
-## Support (To-Do)
+## Support 
+(To-Do)
 
 If you have any issues or doubts, please send an email to ....
 
@@ -150,12 +153,14 @@ If you have any issues or doubts, please send an email to ....
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the 
 [tags on this repository](https://github.com/your/repository/tags).  -->
 
-## Authors (To-Do)
+## Authors 
+(To-Do)
 
 * **Miguel Ángel Naranjo Ortiz** - *Pipeline work* - [MANaranjo](https://github.com/MANaranjo)
 * **Manuel Molina Marín** - *Docker work* - [manumolina](https://github.com/manumolina)
 
-## License (To-Do)
+## License 
+(To-Do)
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
