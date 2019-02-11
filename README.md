@@ -6,7 +6,7 @@ A one paragraph description about the container.
 
 If you haven't done so already, you'll need to "Clone or Download" this project.
 ```shell
-git clone https://github.com/Gabaldonlab/redundans.git
+git clone https://github.com/Gabaldonlab/karyon_docker.git
 ```
 
 ## Prerequisities
