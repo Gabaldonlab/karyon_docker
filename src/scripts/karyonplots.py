@@ -16,26 +16,6 @@ import scipy.stats
 from decimal import Decimal
 from scipy import stats
 
-'''
-if __name__ == '__main__':
-	parser = argparse.ArgumentParser()
-	parser.add_argument('-f', '--fasta', required=True, help="fasta file used as input")
-	parser.add_argument('-o', '--output', required=True, help="Output prefix")
-	parser.add_argument('-v', '--vcf', required=True, help="VCF file used as input")
-	parser.add_argument('-p', '--pileup', required=True, help="Mpileup file used as input")
-	parser.add_argument('-b', '--bam', required=True, help="Bam file used as input")
-	parser.add_argument('-l', '--library', required=True, help="Illumina library used for the KAT plot")
-	parser.add_argument('-w', '--wsize', required=True, help="Window size for plotting")
-	parser.add_argument('-c', '--counter', default=20, help="Number of scaffolds to analyze")
-	parser.add_argument('-s', '--scafsize', default=False, help="Will ignore scaffolds with length below the given threshold")
-	parser.add_argument('-S', '--scafmaxsize', default=False, help="Will ignore scaffolds with length above the given threshold")
-	
-args = parser.parse_args()
-'''
-
-
-
-
 
 def scaffold_len_lin(fasta, window_size, fastainput, output):
 	lenlist = []
@@ -154,6 +134,40 @@ def var_v_cov(vcf, pileup, window_size, output):
 	#plt.ylabel('Coverage')
 	plt.close()
 	return mean_cov
+
+def var_v_cov_per_scaf(vcf, pileup, scaflist, output):
+	x, y, z = var_v_cov(vcf, pileup)
+	vcf_file = open(vcf)
+	pileup_file = open(pileup)
+	window_size = int(args.wsize)
+	quality_filter = 500
+	mean_cov = extract_pileup_data(pileup_file)
+	snp_density = extract_vcf_data(vcf_file, quality_filter, '')
+	x_scaf, y_scaf, z_scaf = [], [], []
+	xy = np.vstack([x,y])
+	xy_dataset = []
+	for element in snp_density:	
+		if element in mean_cov and mean_cov[element] < 200 and mean_cov[element] > 10 and snp_density[element] < 500:
+			x_scaf.append(snp_density[element])
+			y_scaf.append(mean_cov[element])
+			xy_dataset.append([element[:element.find('_')], snp_density[element], mean_cov[element]])
+	df = pd.DataFrame.from_dict(data=xy_dataset).rename(columns={0:'scaffolds', 1:'SNPs', 2:'coverage'})
+	df.replace(-np.inf, np.nan)
+	df.fillna(0)
+	
+	for scaf in scaflist:
+		xy_copy = xy_dataset[:]
+		df2 = ''
+		df2 = df[df['scaffolds'].isin([scaf])]
+		fig = plt.figure(figsize=(30, 30))
+		
+		f, ax = plt.subplots(figsize=(8, 8))
+		ax.set_aspect("equal")
+		ax = sns.kdeplot(df.SNPs, df.coverage, cmap="Reds", shade=False)
+		ax = sns.scatterplot(df2.SNPs, df2.coverage, cmap="Blues", marker='.')
+
+		plt.savefig(output+'_var_v_cov.'+'ws'+str(window_size)+"_"+scaf+'.png')
+		plt.close()
 
 def cov_plot(pileup, window_size, output):
 	pileup_file = open(pileup)
@@ -462,7 +476,6 @@ def nQuire_plot(value_list, window_size, newpath):
 		print newpath+"nQuireplots_ws"+str(window_size)+"/"+name+".png has been created"
 		plt.clf()
 	
-
 def katplot(fasta, library, KAT, out):
 	# os.system(KAT+" comp -o "+out+" "+library+" "+fasta+" > "+out+".katreport")
 	cmd = KAT+" comp -o "+out+" "+library+" "+fasta+" > "+out+".katreport"
@@ -470,7 +483,7 @@ def katplot(fasta, library, KAT, out):
 	print '###############'
 	print ('KAT:', returned_value)
 	print '###############'
-
+	
 
 def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, kitchen, newpath, counter, kitchenID, out_name):
 	if out_name==False:
@@ -495,6 +508,14 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	scaffold_len_lin(fasta_file, window_size, fastainput, newpath)
 	scaffold_len_log(fasta_file, window_size, fastainput, newpath)
 	var_v_cov(vcf, mpileup, window_size, newpath)
+	scaflist = set()
+	pileup = open(args.pileup)
+	os.mkdir(newpath + "/scafplot_varcov/")
+	vvcsp = newpath + "/scafplot_varcov/"
+	for i in mpileup:
+		scaflist.add(i.split()[0])
+	mpileup.seek(0)
+	var_v_cov_per_scaf(args.vcf, args.pileup, scaflist, vvcsp)
 	cov_plot(mpileup, window_size, newpath)
 	fair_coin_global(vcf, window_size, newpath)
 	fair_coin_scaff(vcf, window_size, counter, newpath)

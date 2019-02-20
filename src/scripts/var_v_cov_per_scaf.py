@@ -149,8 +149,6 @@ def var_v_cov_per_scaf(vcf, pileup, scaflist):
 		xy_copy = xy_dataset[:]
 		df2 = ''
 		df2 = df[df['scaffolds'].isin([scaf])]
-		#print scaf+" mean and median SNPs/"+str(window_size), df2.SNPs2.mean(), df2.SNPs2.median()
-		#print scaf+" mean and median coverage", df2.coverage2.mean(), df2.coverage2.median()
 		fig = plt.figure(figsize=(30, 30))
 		
 		f, ax = plt.subplots(figsize=(8, 8))
@@ -158,29 +156,10 @@ def var_v_cov_per_scaf(vcf, pileup, scaflist):
 		ax = sns.kdeplot(df.SNPs, df.coverage, cmap="Reds", shade=False)
 		ax = sns.scatterplot(df2.SNPs, df2.coverage, cmap="Blues", marker='.')
 
-
-		'''
-		graph = sns.jointplot(x=df.SNPs, y=df.coverage, kind="kde", color='b')
-		graph.x = df2.SNPs2
-		graph.y = df2.coverage2
-		graph.plot_joint(plt.scatter, marker='x', c='r', s=50)
-		
-		g = gaussian_kde(xy)(xy)
-		plt.figure(figsize=(15,10))
-		fig, ax = plt.subplots()
-		x1 = pd.Series(x, name='SNPs in '+str(window_size)+" base pairs")
-		x2 = pd.Series(y, name='Coverage')
-		x_scaf1 = pd.Series(x_scaf, name='SNPs in '+str(window_size)+" base pairs")
-		y_scaf2 = pd.Series(y_scaf, name='Coverage')
-		
-		ax = sns.jointplot(x_scaf1, y_scaf2, kind='scatter', color='g', linewidth=0.4, marker="+")
-		ax = sns.jointplot(x1,x2, height=7, space=0, kind='kde')
-		'''
 		plt.savefig(args.output+'_var_v_cov.'+'ws'+str(window_size)+"_"+scaf+'.png')
 		plt.close()
 		
 	
-
 
 scaflist = set()
 pileup = open(args.pileup)

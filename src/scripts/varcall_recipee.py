@@ -2,27 +2,7 @@
 import sys, numpy, os.path, re
 import argparse
 from Bio import SeqIO
-'''
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-l', '--libraries', required=True, nargs='+', help="Fastq libraries to use for assembly and variant calling. Unsuitable libraries for any of the steps will be ignored")
-    parser.add_argument('-n', '--name',  required=True, help="Prefix to use with the output files")
-    parser.add_argument('-o', '--output', required=True, help="Output directory")
 
-args = parser.parse_args()
-
-if args.output[-1] == "/":
-	args.output = args.output[:-1]
-if os.path.isdir(args.output) == False:
-	os.mkdir(args.output)
-
-locspp = args.output + "/" + args.name
-fastq = args.libraries
-
-
-libraries_location=args.libraries[0][:fastq[0].rfind("/")]
-location=''
-'''
 def select_champion(fastq, favourite):
 	parse_dict = {}
 	for i in open(fastq):
@@ -115,7 +95,7 @@ def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes):
 	pairs = ''
 	bash_job.write("\n")
 	bash_job.write("cp "+output+"redundans_output/scaffolds.filled.fa "+locspp+".fasta\n\n")
-	bash_job.write("bwa index "+locspp+".fasta\n\n")
+	bash_job.write(config_dict["BWA"] + "bwa index "+locspp+".fasta\n\n")
 	
 	champion, parse_dict = select_champion(fastq, favourite)
 
@@ -125,10 +105,10 @@ def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes):
 		bash_job.write("python " + home + "scripts/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -f2 "+os.path.abspath(parse_dict[champion[1]][5])+" -n "+locspp+"\n\n")	
 	if parse_dict[champion[1]][4] == 's':
 		bash_job.write("python " + home + "scripts/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -n "+locspp+"\n\n")
-	#print "python " + home + "scripts/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -f2 "+os.path.abspath(parse_dict[champion[1]][5])+" -n "+locspp+"\n\n"
+		
 	bash_job.write(config_dict["samtools"][0]+"samtools index "+locspp2+'.sorted.bam\nsamtools faidx '+locspp+'.fasta\n\n')
 	bash_job.write(config_dict["samtools"][0]+"samtools index "+locspp+'.sorted.bam\n')
 	bash_job.write(config_dict["samtools"][0]+"samtools faidx "+locspp+'.fasta\n')
 	bash_job.write(config_dict["GATK"][0] + " --java-options -Xmx"+memory+"G HaplotypeCaller -R "+locspp+'.fasta -I '+locspp+'.sorted.bam -O '+locspp+'.raw.vcf\n\n')
-	# bash_job.write(config_dict["samtools"][0]+"samtools mpileup -Q 0 -M 0 -e 0 "+locspp+'.sorted.bam > '+locspp+'.mpileup\n')
+
 	bash_job.write(config_dict["bcftools"][0]+"bcftools mpileup --fasta-ref " + locspp + ".fasta " + config_dict["bcftools"][1]+" "+locspp+'.sorted.bam > '+locspp+'.mpileup\n')	

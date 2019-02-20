@@ -125,8 +125,8 @@ if __name__ == '__main__':
 			sys.exit(1)
 		else:
 			os.mkdir(args.output_directory)
-	elif :
-		# os.rmdir(args.output_directory)
+	else :
+		os.rmdir(args.output_directory)
 		os.mkdir(args.output_directory)
 	os.system("mkdir "+ home + "kitchen/"+job_ID)
 
