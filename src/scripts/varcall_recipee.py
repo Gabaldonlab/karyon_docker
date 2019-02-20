@@ -95,7 +95,7 @@ def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes):
 	pairs = ''
 	bash_job.write("\n")
 	bash_job.write("cp "+output+"redundans_output/scaffolds.filled.fa "+locspp+".fasta\n\n")
-	bash_job.write(config_dict["BWA"] + "bwa index "+locspp+".fasta\n\n")
+	bash_job.write(config_dict["BWA"][0] + "bwa index "+locspp+".fasta\n\n")
 	
 	champion, parse_dict = select_champion(fastq, favourite)
 
