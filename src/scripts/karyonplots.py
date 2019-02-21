@@ -521,16 +521,7 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	fair_coin_scaff(vcf, window_size, counter, newpath)
 	cov_v_len(mpileup, fastainput, newpath)
 	katplot(fasta_file, library, KAT, newpath)
-	# window_walker(window_size, step, VCF, fasta_file, bam, nQuire, kitchen, newpath, counter)
-
-#newpath = args.output[:args.output.rfind("/")]+"/"
-#allplots(window_size, vcf_file, fasta_file, bam_file, mpileup, library, nQuire, KAT, kitchen, newpath, counter, kitchenID)
-
-
-
-	
-
-
+	#window_walker(window_size, step, VCF, fasta_file, bam, nQuire, kitchen, newpath, counter)
 
 	
 	

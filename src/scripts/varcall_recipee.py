@@ -66,9 +66,7 @@ def create_hypo_dict(fastq):
 				hypo_dict[hypothetical] = element
 				fastq.remove(element)
 				break
-	return hypo_dict			
-
-#if os.path.exists(args.output+"/"+args.name+".karyon.txt"): os.remove(args.output+"/"+args.name+".karyon.txt")
+	return hypo_dict
 
 def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes):
 	outputfile = output+name+"_karyon.job"
