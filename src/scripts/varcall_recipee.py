@@ -3,6 +3,8 @@ import sys, numpy, os.path, re
 import argparse
 from Bio import SeqIO
 
+
+### Selects a single library to use in the mapping step. By default, it selects the library with higher coverage ###
 def select_champion(fastq, favourite):
 	parse_dict = {}
 	for i in open(fastq):
@@ -19,6 +21,7 @@ def select_champion(fastq, favourite):
 		champion = [0,args.favourite]
 	return champion, parse_dict
 
+### Converts libraries with phred33 scores to phred33 in order to unify all quality scores ###
 def job_description (fastqlist):
 	phred64dict = {}
 	for element in fastqlist:
@@ -45,6 +48,8 @@ def job_description (fastqlist):
 	return phred64dict
 
 
+### This function is used to try to guess the complementary library of a given one, mostly based on its name and common naming conventions for forward and reverse pairs ###
+
 def create_hypo_dict(fastq):
 	hypo_dict = {}
 	for element in fastq:
@@ -67,6 +72,9 @@ def create_hypo_dict(fastq):
 				fastq.remove(element)
 				break
 	return hypo_dict
+
+
+### Generates a file with all the variant calling protocol ###
 
 def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes):
 	outputfile = output+name+"_karyon.job"

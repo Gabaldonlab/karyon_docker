@@ -3,6 +3,8 @@ import sys, numpy, os.path, re
 import argparse
 from Bio import SeqIO
 
+### Generates a string that call to SPADes or dipSPADes
+
 def call_SPAdes(library_file, path, output, name, commands, no_diploid, memory_limit, nodes, champion, light):
 	libstring = ' '
 	backstring = ''		
