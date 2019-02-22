@@ -3,20 +3,12 @@ import sys, numpy, os.path, re, os
 import argparse
 from Bio import SeqIO
 import gzip, bz2, tarfile
-
-'''
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-l', '--libraries', required=True, nargs='+', help="Fastq libraries to use for assembly and variant calling. Unsuitable libraries for any of the steps will be ignored")
-    parser.add_argument('-s', '--sample_size', default=10000, help="Number of reads to analyze to stimate insert size for each library")
-    parser.add_argument('-r', '--reverse', default=False, action='store_true', help='Converts phred33 libraries to phred64. Default is phred64 -> phred33')
-    parser.add_argument('-o', '--output_report', required=True, help='The script will prepare a report for all the input libraries that will be used by other scripts to adjust automatically their parameters')
-
-args = parser.parse_args()'''
+from trimming_libraries import get_right_path
 
 def remove_false_files(filelist): #We remove empty files that otherwise would make everything crash
 	clean_list = []
-	for i in filelist: 
+	for i in filelist:
+		i = get_right_path(i)
 		if os.path.getsize(i) < 10000: #I probably need a better way to judge it
 			continue
 		else:
@@ -26,9 +18,11 @@ def remove_false_files(filelist): #We remove empty files that otherwise would ma
 def get_mean_read_len(fastqfile, sample_size, compressed_dict):
 	mean_read_dict = {}
 	sampling = []
+	fastqfile = get_right_path(fastqfile)
 	if (compressed_dict[fastqfile] != "no-compression" and fastqfile[:fastqfile.rfind(".")+1][-3:] == "fa") or (compressed_dict[fastqfile] != "no-compression" and  fastqfile[:fastqfile.rfind(".")+1][-6:] == ".fasta"):
 		fastafile = SeqIO.parse(fastqfile, "fasta")
 		for i in fastafile:
+			i = get_right_path(i)
 			sampling.append(len(i))
 			if len(sampling) >= sample_size:
 				break
@@ -62,6 +56,7 @@ def get_mean_read_len(fastqfile, sample_size, compressed_dict):
 def compression_parse(fastq):
 	compressed_dict = {}
 	for i in fastq:
+		i = get_right_path(i)
 		if i[i.rfind("gz"):] == "gz" or i[i.rfind("gzip"):] == "gzip":
 			compressed_dict[i] = "gzip"
 		elif i[i.rfind("bzip2"):] == "bz2" or i[i.rfind("bzip2"):] == "bzip2" > -1:
@@ -95,6 +90,7 @@ def phred_parse (fastqlist, sample_size):
 				else:
 					switch = False
 	for element in fastqlist:
+		element = get_right_path(element)
 		if element not in phred64dict:
 			phred64dict[element] = "64"
 	return phred64dict
@@ -140,6 +136,7 @@ def type_parse(fastq, hypo_dict, mean_read_dict):
 	library_dict = {}
 	library_size_dict = {}
 	for i in fastq:
+		i = get_right_path(i)
 		if i in type_dict: continue
 		if i in hypo_dict:
 			type_dict[i] = [1, hypo_dict[i]]
@@ -148,6 +145,7 @@ def type_parse(fastq, hypo_dict, mean_read_dict):
 			type_dict[i] = ["pb", "no_partner"]
 		else: type_dict[i] = ["s", "no_partner"]
 	for i in fastq:
+		i = get_right_path(i)
 		if type_dict[i] == 1 or type_dict[i] == 2:
 			library_size_dict[i] = (os.stat(i).st_size)*2
 		else:
@@ -160,6 +158,7 @@ def preparation(initial_fastq, sample_size, output_report):
 	mean_read_dict = {}
 	compressed_dict = compression_parse(fastq)
 	for i in fastq:
+		i = get_right_path(i)
 		mean_read_dict[i] = get_mean_read_len(i, sample_size, compressed_dict)
 
 	hypo_dict = hypo_dict_parse(fastq)
@@ -171,6 +170,7 @@ def preparation(initial_fastq, sample_size, output_report):
 
 	report = open(output_report, 'w')
 	for i in fastq:
+		i = get_right_path(i)
 		print i + "\t" + str(mean_read_dict[i][0]) + "\t" + str(mean_read_dict[i][1]) + "\t" + str(library_size_dict[i]) + "\t" + str(phred64dict[i]) + "\t" + str(type_dict[i][0]) + "\t" + str(type_dict[i][1]) + "\t" + format_dict[i] + "\t" + compressed_dict[i]+"\n"
 		report.write(i + "\t" + str(mean_read_dict[i][0]) + "\t" + str(mean_read_dict[i][1]) + "\t" + str(library_size_dict[i]) + "\t" + str(phred64dict[i]) + "\t" + str(type_dict[i][0]) + "\t" + str(type_dict[i][1]) + "\t" + format_dict[i] + "\t" + compressed_dict[i]+"\n")
 	report.close()
