@@ -1,4 +1,3 @@
-#!/bin/python
 import sys, os, re, subprocess, math
 import argparse
 import psutil
@@ -49,18 +48,42 @@ def scaffold_len_log(fasta, window_size, fastainput, output):
 	plt.savefig(output+'_lenlog.png')
 	plt.close()
 
-def extract_vcf_data (vcf_file, quality_filter, window_size):
+def extract_pileup_data (pileup, window_size):
+	coverage = []
+	curr_pos = 0
+	curr_scaffold = ''
+	cov_dict = {}
+	for line in pileup:
+		if line[0] == "#": continue
+		chunk = line.split()
+		
+		if chunk[0] != curr_scaffold:
+			curr_scaffold = chunk[0]
+			curr_pos = 0
+			cov_dict[curr_scaffold+"_"+str(curr_pos)] = numpy.mean(coverage)
+			coverage = []
+		elif int(chunk[1]) >= curr_pos + window_size:
+			cov_dict[curr_scaffold+"_"+str(curr_pos)] = numpy.mean(coverage)
+			if (int(chunk[1])-curr_pos)/window_size > 1:
+				for i in range(1, (int(chunk[1])-curr_pos)/window_size):
+					cov_dict[curr_scaffold+"_"+str(curr_pos+(i*window_size))] = 0
+			curr_pos = curr_pos + (window_size*((int(chunk[1])-curr_pos)/window_size))
+			coverage = [int(chunk[3])]
+		else: 
+			coverage.append(int(chunk[3]))
+	pileup.seek(0)
+	return cov_dict
+
+def extract_vcf_data(vcf_file, window_size, scaf, quality_filter):
 	snp_count = 0
 	curr_pos = 0
 	curr_scaffold = ''
 	snp_dict = {}
+	scaf_size = window_size
 	for line in vcf_file:
 		if line[0] == "#": continue
+		if scaf != '' and line.split()[0] != scaf: continue
 		chunk = line.split("\t")
-		#if args.scafsize != False:
-			#if (lendict[chunk[0]]) <= scaf_size:continue
-		#if args.scafmaxsize != False:
-			#if (lendict[chunk[0]]) >= scaf_max_size: continue
 		if float(chunk[5]) < quality_filter: continue
 		if chunk[0] != curr_scaffold:
 			curr_scaffold = chunk[0]
@@ -79,41 +102,11 @@ def extract_vcf_data (vcf_file, quality_filter, window_size):
 	vcf_file.seek(0)
 	return snp_dict
 
-def extract_pileup_data (pileup_file, window_size):
-	coverage = []
-	curr_pos = 0
-	curr_scaffold = ''
-	cov_dict = {}
-	for line in pileup_file:
-		if line[0] == "#": continue
-		chunk = line.split()
-		#if args.scafsize != False:
-			#if (lendict[chunk[0]]) <= scaf_size:continue
-		#if args.scafmaxsize != False:
-			#if (lendict[chunk[0]]) >= scaf_max_size: continue
-		if chunk[0] != curr_scaffold:
-			curr_scaffold = chunk[0]
-			curr_pos = 0
-			cov_dict[curr_scaffold+"_"+str(curr_pos)] = numpy.mean(coverage)
-			coverage = []
-		elif int(chunk[1]) >= curr_pos + window_size:
-			cov_dict[curr_scaffold+"_"+str(curr_pos)] = numpy.mean(coverage)
-			if (int(chunk[1])-curr_pos)/window_size > 1:
-				for i in range(1, (int(chunk[1])-curr_pos)/window_size):
-					cov_dict[curr_scaffold+"_"+str(curr_pos+(i*window_size))] = 0
-			curr_pos = curr_pos + (window_size*((int(chunk[1])-curr_pos)/window_size))
-			coverage = [int(chunk[7][chunk[7].find('=')+1: chunk[7].find(';')])]
-			#coverage = [ int(chunk[7].split(';')[0].split('=')[1]) ]
-		else: 
-			coverage.append(int(chunk[3]))
-	pileup_file.seek(0)
-	return cov_dict
-
 def var_v_cov(vcf, pileup, window_size, output):
-	vcf_file = open(vcf)
-	pileup_file = open(pileup)
-	quality_filter = 500
-	snp_density = extract_vcf_data(vcf_file, quality_filter, window_size)
+	vcf_file = open(vcf, 'r')
+	pileup_file = open(pileup, 'r')
+	quality_filter = 100
+	snp_density = extract_vcf_data(vcf_file, window_size, '', quality_filter)
 	mean_cov = extract_pileup_data(pileup_file, window_size)
 	x, y = [], []
 	fig = plt.figure(figsize=(15, 10))
@@ -127,22 +120,33 @@ def var_v_cov(vcf, pileup, window_size, output):
 	fig, ax = plt.subplots()
 	x1 = pd.Series(x, name='SNPs in '+str(window_size)+" base pairs")
 	x2 = pd.Series(y, name='Coverage')
-	#ax.scatter(x, y, c=z, s=10, edgecolor='')
 	ax = sns.jointplot(x1,x2,kind="kde", height=7, space=0)
 	plt.savefig(output+'_var_v_cov.'+'ws'+str(window_size)+'.png')
-	#plt.xlabel('SNPs in '+str(window_size)+"base pairs")
-	#plt.ylabel('Coverage')
+	plt.xlabel('SNPs in '+str(window_size)+"base pairs")
+	plt.ylabel('Coverage')
 	plt.close()
 	return mean_cov
 
-def var_v_cov_per_scaf(vcf, pileup, scaflist, output):
-	x, y, z = var_v_cov(vcf, pileup)
+def var_v_cov2(vcf, pileup, window_size):
+	quality_filter = 500
+	snp_density = extract_vcf_data(vcf, quality_filter, '', quality_filter)
+	mean_cov = extract_pileup_data(pileup, window_size)
+	x, y, z = [], [], []
+	fig = plt.figure(figsize=(15, 10))
+	for element in snp_density:
+		if element in mean_cov and mean_cov[element] < 200 and mean_cov[element] > 10 and snp_density[element] < 500:
+			x.append(snp_density[element])
+			y.append(mean_cov[element])
+			z.append(element.split('_')[0])
+	return x, y, z
+
+def var_v_cov_per_scaf(vcf, pileup, scaflist, window_size, output):
 	vcf_file = open(vcf)
 	pileup_file = open(pileup)
-	window_size = int(args.wsize)
-	quality_filter = 500
-	mean_cov = extract_pileup_data(pileup_file)
-	snp_density = extract_vcf_data(vcf_file, quality_filter, '')
+	x, y, z = var_v_cov2(vcf_file, pileup_file, window_size)
+	quality_filter = 100
+	mean_cov = extract_pileup_data(pileup_file, window_size)
+	snp_density = extract_vcf_data(vcf_file, quality_filter, '', window_size)
 	x_scaf, y_scaf, z_scaf = [], [], []
 	xy = np.vstack([x,y])
 	xy_dataset = []
@@ -154,20 +158,22 @@ def var_v_cov_per_scaf(vcf, pileup, scaflist, output):
 	df = pd.DataFrame.from_dict(data=xy_dataset).rename(columns={0:'scaffolds', 1:'SNPs', 2:'coverage'})
 	df.replace(-np.inf, np.nan)
 	df.fillna(0)
-	
 	for scaf in scaflist:
+		
+		#if scaf not in snp_density: continue
 		xy_copy = xy_dataset[:]
 		df2 = ''
 		df2 = df[df['scaffolds'].isin([scaf])]
 		fig = plt.figure(figsize=(30, 30))
 		
-		f, ax = plt.subplots(figsize=(8, 8))
+		f, ax = plt.subplots(figsize=(20, 20))
 		ax.set_aspect("equal")
 		ax = sns.kdeplot(df.SNPs, df.coverage, cmap="Reds", shade=False)
 		ax = sns.scatterplot(df2.SNPs, df2.coverage, cmap="Blues", marker='.')
 
 		plt.savefig(output+'_var_v_cov.'+'ws'+str(window_size)+"_"+scaf+'.png')
 		plt.close()
+	pileup_file.seek(0)
 
 def cov_plot(pileup, window_size, output):
 	pileup_file = open(pileup)
@@ -227,8 +233,6 @@ def fair_coin_global(vcf, window_size, output):
 				else:
 					value_list.append(float(values[1])/(int(values[0])+int(values[1])))
 					binomial_list.append(numpy.random.binomial(n=(int(values[0])+int(values[1])), p=0.5, size=None)/ (float(values[0])+int(values[1])))	
-	#expected_freq = numpy.random.binomial(n=(sum(total_list)), p=0.5, size=None)
-	#numpy.random.normal(loc=0.5, scale=np.std(value_list), size=len(value_list))
 
 	print scipy.stats.chisquare(value_list, f_exp=binomial_list, ddof=0, axis=0)
 	bins = numpy.linspace(0, 1, 100)
@@ -275,23 +279,18 @@ def fair_coin_scaff(vcf, window_size, counter, output):
 	for i in value_dict:
 		size_list.append(len(value_dict[i]))
 		sampling = int(np.mean(size_list))
-		binomial_sublist = numpy.random.choice(binomial_list, size=sampling, replace=False)
-		for i in binomial_sublist:
-			binomial_altsublist.append(1-i)
-
-		#expected_freq = numpy.random.binomial(n=(sum(total_list)), p=0.5, size=None)
-		#numpy.random.normal(loc=0.5, scale=np.std(value_list), size=len(value_list))
-
-		#print scipy.stats.chisquare(value_list, f_exp=binomial_list, ddof=0, axis=0)
-
-		bins = numpy.linspace(0, 1, 10000)
+		if sampling > 1:
+			binomial_sublist = numpy.random.choice(binomial_list, size=sampling, replace=False)
+			for i in binomial_sublist:
+				binomial_altsublist.append(1-i)
+		else: continue
+			
+	bins = numpy.linspace(0, 1, 10000)
 	for value in value_dict:
 		if len(value_dict[value]) > 0:
 			sns.distplot(value_dict[value], bins, hist=False, color='RoyalBlue', norm_hist = True)
-			#sns.distplot(alt_dict[value+"_alt"], bins, hist=False, color='DarkGoldenRod')
 	
 	sns.distplot(binomial_sublist, bins, hist=False, label='exp', color="Maroon")
-	#sns.distplot(binomial_sublist, bins, hist=False, label='altexp', color="Maroon")
 	plt.axvline(x=0.5, color='black', linestyle='-', linewidth=2)
 	plt.axvline(x=0.33, color='black', linestyle='--', linewidth=2)
 	plt.axvline(x=0.66, color='black', linestyle='--', linewidth=2)
@@ -338,8 +337,8 @@ def cov_v_len(pileup, fastainput, output):
 	plt.savefig(output+'_len_v_cov.png')
 	pileup_file.seek(0)
 
-def launch_nQuire(bam, nQuire, kitchen):
-	BAMtemp = pysam.AlignmentFile(kitchen+"BAMtemp.bam", 'wb', template=bam)
+def launch_nQuire(bam, nQuire, kitchen, bam_file):
+	BAMtemp = pysam.AlignmentFile(kitchen+"BAMtemp.bam", 'wb', )
 	for i in bam:
 		BAMtemp.write(i)
 	BAMtemp.close()
@@ -382,7 +381,7 @@ def window_walker(window_size, step, vcf_file, fasta_file, bam_file, nQuire, kit
 	prev_record_name = False
 	fasta = SeqIO.parse(fasta_file, "fasta")
 	for record in fasta:
-		if len(os.listdir(newpath+"nQuireplots_ws"+str(window_size))) >= counter: break
+		if len(os.listdir(newpath+"_nQuireplots_ws"+str(window_size))) >= counter: break
 		if record.name != prev_record_name and prev_record_name != False:
 			nQuire_plot(window_stats, window_size, newpath)
 			window_stats = []
@@ -410,7 +409,7 @@ def window_walker(window_size, step, vcf_file, fasta_file, bam_file, nQuire, kit
 			mean_cov = numpy.nanmean(bam_file.count_coverage(record.name, start, start + window_size, quality_threshold=0))
 
 			stdev_cov = numpy.nanstd(bam_file.count_coverage(record.name, start, start + window_size))
-			diplo_score, triplo_score, tetra_score = launch_nQuire(BAMtemp, nQuire, kitchen)
+			diplo_score, triplo_score, tetra_score = launch_nQuire(BAMtemp, nQuire, kitchen, bam_file)
 			R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB = ttest_ploidy(log_refalt_list)
 
 			window_stats.append([window, start+window_size/2, diplo_score, triplo_score, tetra_score, R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB, mean_cov, stdev_cov, mean_refaltcov_list])
@@ -472,12 +471,12 @@ def nQuire_plot(value_list, window_size, newpath):
 		xy = np.vstack([pos_list,all_refalt_list])
 		z = gaussian_kde(xy)(xy)
 		plt.scatter(pos_list, all_refalt_list, c=z, s=30, edgecolor='')
-		plt.savefig(newpath+"nQuireplots_ws"+str(window_size)+"/"+name+".png")
-		print newpath+"nQuireplots_ws"+str(window_size)+"/"+name+".png has been created"
+		plt.savefig(newpath+"nQuireplots_ws"+str(window_size)+name+".png")
+		print newpath+"nQuireplots_ws"+str(window_size)+name+".png has been created"
 		plt.clf()
 	
 def katplot(fasta, library, KAT, out):
-	# os.system(KAT+" comp -o "+out+" "+library+" "+fasta+" > "+out+".katreport")
+	os.system(KAT+" comp -o "+out+" "+library+" "+fasta+" > "+out+".katreport")
 	cmd = KAT+" comp -o "+out+" "+library+" "+fasta+" > "+out+".katreport"
 	returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
 	print '###############'
@@ -489,39 +488,36 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	if out_name==False:
 		outname = ''
 	newpath = newpath+"/"+out_name
-	# os.system("bgzip -c "+ vcf+ " > " + vcf + ".gz")
-	# os.system("tabix -p vcf "+ vcf+".gz")
-	vcf_file = open(vcf+".gz", 'r')
+	os.system("bgzip -c "+ vcf+ " > " + vcf + ".gz")
+	os.system("tabix -p vcf "+ vcf+".gz")
+	vcf_file = open(vcf, 'r')
 	bam_file = pysam.AlignmentFile(bam, 'rb')
 	kitchen = kitchen+kitchenID
-
 	lendict = {}
 	fastainput = SeqIO.index(fasta_file, "fasta")
 	for i in fastainput:
 		lendict[i] = len(fastainput.get_raw(i).decode())
-	step = window_size/2
-	# VCF = pysam.VariantFile(vcf+".gz", 'r')
-	if newpath.find("/") > -1:
-		originalpath=os.getcwd()
-	os.makedirs(newpath+"nQuireplots_ws"+str(window_size))
+	
+	
 	
 	scaffold_len_lin(fasta_file, window_size, fastainput, newpath)
 	scaffold_len_log(fasta_file, window_size, fastainput, newpath)
 	var_v_cov(vcf, mpileup, window_size, newpath)
 	scaflist = set()
-	pileup = open(args.pileup)
-	os.mkdir(newpath + "/scafplot_varcov/")
-	vvcsp = newpath + "/scafplot_varcov/"
-	for i in mpileup:
+	pileup = open(mpileup)
+	os.mkdir(newpath + "_scafplot_varcov/")
+	vvcsp = newpath + "_scafplot_varcov/"
+	for i in pileup:
 		scaflist.add(i.split()[0])
-	mpileup.seek(0)
-	var_v_cov_per_scaf(args.vcf, args.pileup, scaflist, vvcsp)
+	pileup.seek(0)
 	cov_plot(mpileup, window_size, newpath)
 	fair_coin_global(vcf, window_size, newpath)
 	fair_coin_scaff(vcf, window_size, counter, newpath)
+	var_v_cov(vcf, mpileup, window_size, vvcsp)
+	var_v_cov_per_scaf(vcf, mpileup, scaflist, window_size, vvcsp)
 	cov_v_len(mpileup, fastainput, newpath)
 	katplot(fasta_file, library, KAT, newpath)
-	#window_walker(window_size, step, VCF, fasta_file, bam, nQuire, kitchen, newpath, counter)
+	#window_walker(window_size, step, VCF, fasta_file, bam_file, nQuire, kitchen, newpath, counter)
 
 	
 	

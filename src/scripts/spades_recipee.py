@@ -18,14 +18,12 @@ def call_SPAdes(library_file, path, output, name, commands, no_diploid, memory_l
 		elif chunk[5] == "2": continue
 		else: backstring = backstring + get_right_path(chunk[5]) + " " + get_right_path(chunk[0]) + " "
 		libstring = libstring + backstring
-	print libstring, "aaaaaaaaaaaaaaaaaaaaaaaaaa"
 	
 	outputfile = open(output+name+"_karyon.job", 'w')
 	if no_diploid == True:
 		outputfile.write("python " + path + "bin/spades.py" + libstring + " -t " + str(nodes) + " -m " +  str(memory_limit) + " " +commands + "-o " + output)
 	else:
 		outputfile.write("python " + path + "bin/dipspades.py" + libstring + " -t " + str(nodes) + " -m " +  str(memory_limit) + " " +commands + "-o " + output)
-	print "los kibis"
 	print "python " + path + "bin/spades.py" + libstring + " -t " + str(nodes) + " -m " +  str(memory_limit) + " " +commands + "-o " + output
 	outputfile.write("\n")
 	outputfile.close()

@@ -1,0 +1,4 @@
+/home/mnaranjo/Documents/testLramosa/parsed_paired_4FSU10000-5kbMP_R1_clipped_trimmed.fastq	184	76.99189744323749	13000704	33	1	/home/mnaranjo/Documents/testLramosa/parsed_paired_4FSU10000-5kbMP_R2_clipped_trimmed.fastq	fastq	no-compression
+/home/mnaranjo/Documents/testLramosa/parsed_paired_4FSU10000-5kbMP_R2_clipped_trimmed.fastq	178	72.4784514379274	12673024	33	2	/home/mnaranjo/Documents/testLramosa/parsed_paired_4FSU10000-5kbMP_R1_clipped_trimmed.fastq	fastq	no-compression
+/home/mnaranjo/Documents/testLramosa/parsed_unpaired_4FSU10000-5kbMP_R2_clipped_trimmed.fastq	237	81.29805395549161	1236992	33	2	/home/mnaranjo/Documents/testLramosa/parsed_unpaired_4FSU10000-5kbMP_R1_clipped_trimmed.fastq	fastq	no-compression
+/home/mnaranjo/Documents/testLramosa/parsed_unpaired_4FSU10000-5kbMP_R1_clipped_trimmed.fastq	213	89.65423230941501	1990656	33	1	/home/mnaranjo/Documents/testLramosa/parsed_unpaired_4FSU10000-5kbMP_R2_clipped_trimmed.fastq	fastq	no-compression

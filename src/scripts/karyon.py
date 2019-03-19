@@ -2,7 +2,7 @@
 desc="""Karyon pipeline.
 More info at: https://github.com/Gabaldonlab/karyon
 """
-epilog="""Author: Miguel Angel Naranjo (email) Barcelona, 01/01/2019"""
+epilog="""Author: Miguel Angel Naranjo (miguelangelnaranjoortiz@gmail.com) Barcelona, 01/01/2019"""
 import sys, os, re
 import argparse
 import psutil
@@ -50,7 +50,7 @@ def select_champion(fastq):
 			if int(parse_dict[element][2]) > champion[0]:
 				champion = [int(parse_dict[element][2]), get_right_path(element)]
 	else:
-		champion = [0, get_right_path(args.favourite)]
+		champion = [int(parse_dict[args.favourite][2]), get_right_path(args.favourite)]
 	return champion
 
 if __name__ == '__main__':	
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 	parser.add_argument('-K', '--dirty_kitchen', action='store_true', default=False, help='If this tag is active, the program will not remove all intermediary files in the fodler kitchen after it has finished')
 	parser.add_argument('-T', '--no_trimming', action='store_true', default=False, help='If this tag is active, the program will skip the trimming step')
 	parser.add_argument('-R', '--no_redundans', action='store_true', default=False, help='If this tag is active, the program will not launch redundans. Remember that redundans is used to perform many downstream analyses. If you skip it, the analyses may not make much sense.')
-	parser.add_argument('-V', '--no_varcall', action='store_true', default=False, help="If this tag is active, the program will skip the variant calling step. Many downstream analyses require this and won't be possible if you skip it.")
+	parser.add_argument('-Q', '--no_nQuire', action='store_true', default=False, help='If this tag is active, the program will skip the nQuire report. This is a time consuming plot that might crash if the heterozygosity of the genome is low.')
 	parser.add_argument('-P', '--no_plot', action='store_true', default=False, help="If this tag is active, the program will ommit the plots at the end of the skip the variant calling step. Many downstream analyses require this and won't be possible if you skip it.")
 	parser.add_argument('-w', '--window_size', default=1000, help='Window size used for some of the analyses. Default is 1000 (1Kb)')
 	parser.add_argument('-F', '--favourite', default=False, help='Sets one library as the prefered one for the variant calling analyses. Otherwise, karyon will select the largest library for performing the variant calling protocol.')
@@ -137,9 +137,6 @@ if __name__ == '__main__':
 	for i in args.libraries:
 		libs = libs + " " + i
 	preparation(libs.split(), 10000, prepared_libs)
-	preplibsfile = open(prepared_libs)
-	preplibsfile.seek(0)
-	for i in preplibsfile: print i, "mandonguilles"
 
 	libs_parsed = ''
 	if not args.no_trimming and args.reference == False:
@@ -154,9 +151,10 @@ if __name__ == '__main__':
 		trimming(prepared_libs, config_dict["trimmomatic"][0], trimmo_commands, home + "kitchen/"+job_ID+"/trimmomatic.job", true_output, False)
 		os.system("bash " + home + "kitchen/"+job_ID+"/trimmomatic.job")
 	
-		for i in os.listdir(args.output_directory):
+		for i in os.listdir(true_output):
 			if i.find("parsed_") > -1:
-				libs_parsed = libs_parsed + " " + true_output + i		
+				libs_parsed = libs_parsed + " " + true_output + i
+		os.remove(prepared_libs)
 		preparation(libs_parsed.split(), 10000, prepared_libs)
 
 	###Parsing library names, including putting absolute paths #
@@ -169,14 +167,13 @@ if __name__ == '__main__':
 		elif chunk[5] == "2": continue
 		else: backstring = backstring + os.path.abspath(chunk[0]) + " "
 	libstring = libstring + backstring
-
 	champion = select_champion(prepared_libs)
 
 	print '###############'
 	print 'Params'
 	print '###############'
 	print args.window_size
-	print true_output+name+".raw.vcf"
+	print true_output+name+".vcf"
 	print true_output+"redundans_output/scaffolds.filled.fa"
 	print true_output+name+".sorted.bam"
 	print true_output+name+".mpileup"
@@ -194,14 +191,18 @@ if __name__ == '__main__':
 
 	karyonjobfile = open(true_output+name+"_karyon.job", 'a')
 	karyonjobfile.write("\n")
-	if args.reference == False:
-		karyonjobfile.write("python "+config_dict['Redundans'][0]+"redundans.py"+" -f "+true_output+"dipspades/consensus_contigs.fasta -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
-	else:
-		karyonjobfile.write("python "+config_dict['Redundans'][0]+"redundans.py"+" -f "+ args.reference + "-o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
+	if args.no_redundans == False: 
+		if args.reference == False:
+			karyonjobfile.write("python "+config_dict['Redundans'][0]+"redundans.py"+" -f "+true_output+"dipspades/consensus_contigs.fasta -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
+		else:
+			karyonjobfile.write("python "+config_dict['Redundans'][0]+"redundans.py"+" -f "+ args.reference + " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
 	karyonjobfile.close()
 
 	#5) Creates job files and calls them
-	var_call(prepared_libs, config_dict, true_output, name, args.favourite, home, str(ram_limit), str(n_nodes))
+	if args.reference != False and args.no_redundans == True:
+		var_call(prepared_libs, config_dict, true_output, name, args.favourite, home, str(ram_limit), str(n_nodes), args.reference)
+	else:
+		var_call(prepared_libs, config_dict, true_output, name, args.favourite, home, str(ram_limit), str(n_nodes), False)
 	os.system ("bash "+true_output+name+"_karyon.job")
 
 	#6) We create the plots
@@ -218,8 +219,8 @@ if __name__ == '__main__':
 		from karyonplots import katplot, allplots
 		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output)
 		allplots(int(args.window_size), 
-			true_output+name+".raw.vcf", 
-			reduced_assembly, 
+			true_output+name+".vcf", 
+			true_output+name+".fasta", 
 			true_output+name+".sorted.bam", 
 			true_output+name+".mpileup", 
 			os.path.abspath(champion[-1]), 
@@ -229,6 +230,21 @@ if __name__ == '__main__':
 			true_output, 
 			counter, 
 			job_ID, name)
+	
+	if args.no_nQuire == True or args.no_plot == True:
+		pass
+	else:
+		os.makedirs(true_output+"_nQuireplots_ws"+str(window_size))
+		step = window_size/2
+		scaflist = set()
+		pileup = open(args.pileup)
+		for i in pileup:
+			scaflist.add(i.split()[0])
+		pileup.seek(0)
+		VCF = pysam.VariantFile(args.vcf+".gz", 'r')
+		bam_file = pysam.AlignmentFile(args.bam, 'rb')
+		from nQuire_plot import window_walker
+		window_walker(args.window_size, step, VCF, true_output+name+".fasta", true_output+name+".sorted.bam", config_dict['nQuire'][0], home + "kitchen/", true_output+"_nQuireplots_ws"+str(window_size), counter)
 
 	###We clean the kitchen###
 	if args.dirty_kitchen == True:

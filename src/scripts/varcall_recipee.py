@@ -76,7 +76,7 @@ def create_hypo_dict(fastq):
 
 ### Generates a file with all the variant calling protocol ###
 
-def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes):
+def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes, no_reduction):
 	outputfile = output+name+"_karyon.job"
 	parse_dict = {}
 	libstring = ' '
@@ -92,29 +92,33 @@ def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes):
 	libstring = libstring + backstring
 	
 	bash_job = open(outputfile, "a")
-	if favourite == False:
-		locspp = output + name
-		locspp2 = locspp
-	else:
-		locspp = output + name
-		locspp = output + name + "_" + favourite[:favourite.rfind(".")+1]
+	locspp = output + name
 	pairs = ''
 	bash_job.write("\n")
-	bash_job.write("cp "+output+"redundans_output/scaffolds.filled.fa "+locspp+".fasta\n\n")
+	if no_reduction == False:
+		bash_job.write("cp "+output+"redundans_output/scaffolds.filled.fa "+locspp+".fasta\n\n")
+	else:
+		bash_job.write("cp "+no_reduction+" "+locspp+".fasta\n\n")
 	bash_job.write(config_dict["BWA"][0] + "bwa index "+locspp+".fasta\n\n")
 	
 	champion, parse_dict = select_champion(fastq, favourite)
-
-	bash_job.write("java -Xmx"+memory+"g -jar " + config_dict["picard-tools"][0]+"CreateSequenceDictionary.jar R="+locspp+'.fasta O='+locspp+'.dict\n\n')
+	bash_job.write(config_dict["GATK"][0] + "gatk CreateSequenceDictionary -R "+locspp+'.fasta -O '+locspp+'.dict\n\n')
 	bash_job.write(config_dict["BWA"][0]+"bwa index "+locspp+'.fasta\n\n')
 	if parse_dict[champion[1]][4] == '1':
-		bash_job.write("python " + home + "scripts/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -f2 "+os.path.abspath(parse_dict[champion[1]][5])+" -n "+locspp+"\n\n")	
+		if config_dict['BWA'][0] == '':
+			bash_job.write("python " + home + "scripts/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -f2 "+os.path.abspath(parse_dict[champion[1]][5])+" -n "+locspp+"\n\n")	
+		else:
+			bash_job.write("python " + home + "scripts/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -f2 "+os.path.abspath(parse_dict[champion[1]][5])+" -n "+locspp+" -b "+config_dict['BWA'][0]+"\n\n")	
 	if parse_dict[champion[1]][4] == 's':
-		bash_job.write("python " + home + "scripts/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -n "+locspp+"\n\n")
-		
-	bash_job.write(config_dict["samtools"][0]+"samtools index "+locspp2+'.sorted.bam\nsamtools faidx '+locspp+'.fasta\n\n')
+		if config_dict['BWA'][0] == '':
+			bash_job.write("python " + home + "scripts/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -f2 "+os.path.abspath(parse_dict[champion[1]][5])+" -n "+locspp+"\n\n")	
+		else:
+			bash_job.write("python " + home + "scripts/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -n "+locspp+" -b "+parse_dict['BWA'][0]+"\n\n")
+	bash_job.write(config_dict["GATK"][0] + "gatk --java-options -Xmx"+memory+"G MarkDuplicates -I "+locspp+'.sorted.bam -O '+locspp+'.marked.sorted.bam  -M '+locspp+'.markedstats.txt ; mv '+locspp+'.marked.sorted.bam '+ locspp+'.sorted.bam\n')	
 	bash_job.write(config_dict["samtools"][0]+"samtools index "+locspp+'.sorted.bam\n')
 	bash_job.write(config_dict["samtools"][0]+"samtools faidx "+locspp+'.fasta\n')
-	bash_job.write(config_dict["GATK"][0] + " --java-options -Xmx"+memory+"G HaplotypeCaller -R "+locspp+'.fasta -I '+locspp+'.sorted.bam -O '+locspp+'.raw.vcf\n\n')
-
-	bash_job.write(config_dict["bcftools"][0]+"bcftools mpileup --fasta-ref " + locspp + ".fasta " + config_dict["bcftools"][1]+" "+locspp+'.sorted.bam > '+locspp+'.mpileup\n')	
+	bash_job.write(config_dict["GATK"][0] + "gatk --java-options -Xmx"+memory+"G HaplotypeCaller -R "+locspp+'.fasta -I '+locspp+'.sorted.bam -O '+locspp+'.raw.vcf\n\n')
+	bash_job.write(config_dict["GATK"][0] + "gatk --java-options -Xmx"+memory+"G VariantFiltration -V "+locspp+'.raw.vcf -O '+ locspp+'.vcf ; rm '+locspp+'.raw.vcf\n')
+	bash_job.write(' rm '+locspp+'.bam ; rm '+locspp+'.sam\n')
+	bash_job.write(config_dict["GATK"][0] + "gatk --java-options -Xmx"+memory+"G CollectMultipleMetrics -I "+locspp+'.sorted.bam -O '+locspp+'_diagnostics --PROGRAM CollectAlignmentSummaryMetrics --PROGRAM CollectGcBiasMetrics --PROGRAM CollectInsertSizeMetrics\n')
+	bash_job.write(config_dict["samtools"][0]+"samtools mpileup -f " + locspp + ".fasta "+locspp+'.sorted.bam > '+locspp+'.mpileup\n')	

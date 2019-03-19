@@ -1,0 +1,2 @@
+/home/mnaranjo/users/tg/mnaranjo/hybridization/Lichteimia_ramosa/Libraries/qNone_l31.1.fastq	251	0.0	6939393123	33	1	/home/mnaranjo/users/tg/mnaranjo/hybridization/Lichteimia_ramosa/Libraries/qNone_l31.2.fastq	fastq	no-compression
+/home/mnaranjo/users/tg/mnaranjo/hybridization/Lichteimia_ramosa/Libraries/qNone_l31.2.fastq	251	0.0	6936596451	33	2	/home/mnaranjo/users/tg/mnaranjo/hybridization/Lichteimia_ramosa/Libraries/qNone_l31.1.fastq	fastq	no-compression

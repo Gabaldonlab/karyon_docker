@@ -26,10 +26,10 @@ else:
 	comando1 = args.bwa_path + 'bwa mem -R "@RG\\tID:test\\tSM:bar" -t 8 ' + reference + ' ' + fasq1 + " " + fasq2 + " >" + name + ".sam"
 os.system(comando1)
 
-comando2 = args.samtools_path +"samtools view -Sb " + name + ".sam >" + name + ".bam"
+comando2 = args.samtools_path +"samtools view -Sb " + name + ".sam > " + name + ".bam"
 os.system(comando2)
 
-comando3 = args.samtools_path + "samtools sort " + name + ".bam -T " + name + " >" + name + ".sorted.bam"
+comando3 = args.samtools_path + "samtools sort " + name + ".bam " + name + ".sorted"
 os.system(comando3)
 
 comando4 = args.samtools_path + "samtools index " + name + ".sorted.bam"
