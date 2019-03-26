@@ -164,7 +164,7 @@ def var_v_cov_per_scaf(vcf, pileup, scaflist, window_size, output):
 		xy_copy = xy_dataset[:]
 		df2 = ''
 		df2 = df[df['scaffolds'].isin([scaf])]
-		fig = plt.figure(figsize=(30, 30))
+		fig = plt.figure(figsize=(15, 10))
 		
 		f, ax = plt.subplots(figsize=(20, 20))
 		ax.set_aspect("equal")

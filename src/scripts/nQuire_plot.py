@@ -43,8 +43,8 @@ if __name__ == '__main__':
 
 cwd = os.getcwd()
 '''
-def launch_nQuire(bam, nQuire, kitchen):
-	BAMtemp = pysam.AlignmentFile(kitchen+"BAMtemp.bam", 'wb', template=bam_file )
+def launch_nQuire(bam, nQuire, kitchen, bam_file):
+	BAMtemp = pysam.AlignmentFile(kitchen+"BAMtemp.bam", 'wb', template=bam_file)
 	for i in bam:
 		BAMtemp.write(i)
 	BAMtemp.close()
@@ -86,11 +86,12 @@ def window_walker(window_size, step, vcf_file, fasta_file, bam_file, nQuire, kit
 	window_stats = []
 	prev_record_name = False
 	fasta = SeqIO.parse(fasta_file, "fasta")
+	count = 0
 	for record in fasta:
-		#if len(os.listdir(newpath+"_nQuireplots_ws"+str(window_size))) >= counter: break
-		if len(os.listdir(newpath)) >= counter: break
+		count = count + 1
+		if count > counter : break
 		if record.name != prev_record_name and prev_record_name != False:
-			nQuire_plot(window_stats, window_size, newpath)
+			nQuire_plot(window_stats, window_size, newpath, bam_file)
 			window_stats = []
 		if prev_record_name == False:
 			prev_record_name = record.name
@@ -116,7 +117,7 @@ def window_walker(window_size, step, vcf_file, fasta_file, bam_file, nQuire, kit
 			mean_cov = numpy.nanmean(bam_file.count_coverage(record.name, start, start + window_size, quality_threshold=0))
 
 			stdev_cov = numpy.nanstd(bam_file.count_coverage(record.name, start, start + window_size))
-			diplo_score, triplo_score, tetra_score = launch_nQuire(BAMtemp, nQuire, kitchen)
+			diplo_score, triplo_score, tetra_score = launch_nQuire(BAMtemp, nQuire, kitchen, bam_file)
 			R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB = ttest_ploidy(log_refalt_list)
 
 			window_stats.append([window, start+window_size/2, diplo_score, triplo_score, tetra_score, R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB, mean_cov, stdev_cov, mean_refaltcov_list])
@@ -124,7 +125,7 @@ def window_walker(window_size, step, vcf_file, fasta_file, bam_file, nQuire, kit
 			vcf_file.seek(0)
 	return window_stats
 
-def nQuire_plot(value_list, window_size, newpath):
+def nQuire_plot(value_list, window_size, newpath, bam_file):
 	name, x, y1, y2, y3, std_cov, mean_cov, snp_den = '', [], [], [], [], [], [], []
 	all_refalt_list, pos_list = [], []
 	for i in value_list:

@@ -229,22 +229,30 @@ if __name__ == '__main__':
 			home + "kitchen/"+job_ID+"/", 
 			true_output, 
 			counter, 
-			job_ID, name)
+			job_ID,
+			name)
 	
 	if args.no_nQuire == True or args.no_plot == True:
 		pass
 	else:
-		os.makedirs(true_output+"_nQuireplots_ws"+str(window_size))
-		step = window_size/2
+		os.makedirs(true_output+"_nQuireplots_ws"+str(args.window_size))
+		step = int(args.window_size)/2
 		scaflist = set()
-		pileup = open(args.pileup)
-		for i in pileup:
+		pileup = open(true_output+name+".mpileup")
+		'''for i in pileup:
 			scaflist.add(i.split()[0])
-		pileup.seek(0)
-		VCF = pysam.VariantFile(args.vcf+".gz", 'r')
-		bam_file = pysam.AlignmentFile(args.bam, 'rb')
+		pileup.seek(0)'''
+		VCF = pysam.VariantFile(true_output+name+".vcf.gz", 'r')
+		bam_file = pysam.AlignmentFile(true_output+name+".sorted.bam", 'rb')
 		from nQuire_plot import window_walker
-		window_walker(args.window_size, step, VCF, true_output+name+".fasta", true_output+name+".sorted.bam", config_dict['nQuire'][0], home + "kitchen/", true_output+"_nQuireplots_ws"+str(window_size), counter)
+		window_walker(int(args.window_size),
+			step,
+			VCF,
+			true_output+name+".fasta",
+			bam_file, config_dict['nQuire'][0],
+			home + "kitchen/",
+			true_output+"_nQuireplots_ws/"+str(args.window_size),
+			counter)
 
 	###We clean the kitchen###
 	if args.dirty_kitchen == True:
