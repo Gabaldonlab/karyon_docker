@@ -62,7 +62,7 @@ if __name__ == '__main__':
 	parser.add_argument('-K', '--dirty_kitchen', action='store_true', default=False, help='If this tag is active, the program will not remove all intermediary files in the fodler kitchen after it has finished')
 	parser.add_argument('-T', '--no_trimming', action='store_true', default=False, help='If this tag is active, the program will skip the trimming step')
 	parser.add_argument('-R', '--no_redundans', action='store_true', default=False, help='If this tag is active, the program will not launch redundans. Remember that redundans is used to perform many downstream analyses. If you skip it, the analyses may not make much sense.')
-	parser.add_argument('-Q', '--no_nQuire', action='store_true', default=False, help='If this tag is active, the program will skip the nQuire report. This is a time consuming plot that might crash if the heterozygosity of the genome is low.')
+	parser.add_argument('-Q', '--nQuire', action='store_true', default=False, help='If this tag is active, the program will create the nQuire report. This is a time consuming plot that might crash if the heterozygosity of the genome is low.')
 	parser.add_argument('-P', '--no_plot', action='store_true', default=False, help="If this tag is active, the program will ommit the plots at the end of the skip the variant calling step. Many downstream analyses require this and won't be possible if you skip it.")
 	parser.add_argument('-w', '--window_size', default=1000, help='Window size used for some of the analyses. Default is 1000 (1Kb)')
 	parser.add_argument('-F', '--favourite', default=False, help='Sets one library as the prefered one for the variant calling analyses. Otherwise, karyon will select the largest library for performing the variant calling protocol.')
@@ -72,7 +72,7 @@ if __name__ == '__main__':
 	parser.add_argument('-m', '--memory_limit', default=False, help='Memory limit for all the programs set in Gb. By default it will try to use all memory available.')
 	parser.add_argument('-M', '--memory_fraction', default=1, help='Percent of total memory to use by all programs. By default it will use all available memory (default=1), but it may be useful to reduce the percent to avoid freezing other tasks of the computer during peaks.')
 	parser.add_argument('-n', '--nodes', default=False, help='Number of computation nodes to use. If set a number higher than total, it will use total. If set a number lower than total, it will calculate memory usage based fraction of nodes set respect total existing nodes.')
-	parser.add_argument('--max_scaf2plot', default=20, help="Maximum number of scaffolds to plot for scaffold-specific plots")
+	parser.add_argument('-x', '--max_scaf2plot', default=20, help="Maximum number of scaffolds to plot for scaffold-specific plots")
 
 	args = parser.parse_args()
 
@@ -207,7 +207,7 @@ if __name__ == '__main__':
 
 	#6) We create the plots
 	if args.no_redundans == True:
-		if args.reference == True:
+		if args.reference != False:
 			reduced_assembly = args.reference
 		else:
 			reduced_assembly = true_output+"dipspades/consensus_contigs.fasta"
@@ -232,10 +232,10 @@ if __name__ == '__main__':
 			job_ID,
 			name)
 	
-	if args.no_nQuire == True or args.no_plot == True:
+	if args.nQuire == False or args.no_plot == True:
 		pass
 	else:
-		os.makedirs(true_output+"_nQuireplots_ws"+str(args.window_size))
+		os.makedirs(true_output+"nQuireplots_ws"+str(args.window_size))
 		step = int(args.window_size)/2
 		scaflist = set()
 		pileup = open(true_output+name+".mpileup")
@@ -249,9 +249,10 @@ if __name__ == '__main__':
 			step,
 			VCF,
 			true_output+name+".fasta",
-			bam_file, config_dict['nQuire'][0],
+			bam_file, 
+			config_dict['nQuire'][0],
 			home + "kitchen/",
-			true_output+"_nQuireplots_ws/"+str(args.window_size),
+			true_output+"_nQuireplots_ws"+str(args.window_size)+"/",
 			counter)
 
 	###We clean the kitchen###

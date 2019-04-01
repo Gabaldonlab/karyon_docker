@@ -24,25 +24,7 @@ import pandas as pd
 import scipy.stats
 from decimal import Decimal
 from scipy import stats
-'''
-desc="""Karyon pipeline."""
-epilog="""Author: Miguel Angel Naranjo (miguelangelnaranjoortiz@gmail.com) Barcelona, 01/01/2019"""
 
-if __name__ == '__main__':	
-	parser = argparse.ArgumentParser(description=desc, epilog=epilog, formatter_class=argparse.RawTextHelpFormatter)
-	parser.add_argument('-w', '--window_size', default=1000, help="window size")
-	parser.add_argument('-s', '--step', default=1000, help='sliding window size')
-	parser.add_argument('-v', '--vcf', required=True, help='vcf file')
-	parser.add_argument('-f', '--fasta', required=True, help='reference genome in fasta file')
-	parser.add_argument('-b', '--bam', required=True, help='bam file')
-	parser.add_argument('-p', '--pileup', required=True, help='pileup file')
-	parser.add_argument('--nQuire', default="/home/mnaranjo//users/tg/mnaranjo/scripts_and_stuff/nQuire/nQuire", help='nQuire path')
-
-	args = parser.parse_args()
-
-
-cwd = os.getcwd()
-'''
 def launch_nQuire(bam, nQuire, kitchen, bam_file):
 	BAMtemp = pysam.AlignmentFile(kitchen+"BAMtemp.bam", 'wb', template=bam_file)
 	for i in bam:
@@ -181,16 +163,7 @@ def nQuire_plot(value_list, window_size, newpath, bam_file):
 
 		z = gaussian_kde(xy)(xy)
 		plt.scatter(pos_list, all_refalt_list, c=z, s=30, edgecolor='')
-		plt.savefig(newpath+"nQuireplot_ws"+str(window_size)+name+".png")
-		print newpath+"nQuireplot_ws"+str(window_size)+name+".png has been created"
+		plt.savefig(newpath+name+".png")
+		print newpath+name+".png has been created"
 		plt.clf()
-'''
-scaflist = set()
-pileup = open(args.pileup)
-for i in pileup:
-		scaflist.add(i.split()[0])
-pileup.seek(0)
-VCF = pysam.VariantFile(args.vcf+".gz", 'r')
-bam_file = pysam.AlignmentFile(args.bam, 'rb')
-window_walker(args.window_size, args.step, VCF, args.fasta, bam_file, args.nQuire, cwd+"/", cwd+"/", 10)
-'''
+
