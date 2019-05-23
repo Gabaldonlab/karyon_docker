@@ -1,4 +1,14 @@
 FROM lpryszcz/redundans:v0.13c
+
+# metadata
+LABEL base.image="lpryszcz/redundans"
+LABEL version="1"
+LABEL software="Karyon"
+LABEL software.version="0.10"
+LABEL description=""
+LABEL website="https://github.com/Gabaldonlab/karyon"
+LABEL license="GNU General Public License To-Do"
+
 MAINTAINER Manu Molina (CRG)
 
 ARG SOURCE_DIR=/root/src/karyon/dependencies
@@ -20,9 +30,9 @@ RUN echo 'alias karyon="python /root/src/karyon/scripts/karyon.py"' >> ~/.bashrc
 WORKDIR /root/src/karyon/dependencies/
 # --------------------------------------- 
 RUN echo "Installing Git + wget + nano..."
-RUN apt-get update
-RUN apt-get install -y software-properties-common
-RUN add-apt-repository -y ppa:webupd8team/java
+# RUN apt-get update
+# RUN apt-get install -y software-properties-common
+# RUN add-apt-repository -y ppa:webupd8team/java
 RUN apt-get update
 RUN apt-get install -y git && \
 	apt install -y wget && \
@@ -33,7 +43,8 @@ RUN apt-get install -y build-essential
 RUN echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
 RUN echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections
 # RUN echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
-RUN apt-get install -y --force-yes oracle-java8-installer
+# RUN apt-get install -y --force-yes oracle-java8-installer
+RUN apt install -y openjdk-8-jdk
 
 RUN apt install -y python-pip
 RUN echo "Git + wget + nano installed"

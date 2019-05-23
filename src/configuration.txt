@@ -20,6 +20,7 @@
 
 +SPAdes
 @/root/src/karyon/dependencies/SPAdes-3.9.0-Linux/
+>--only-assembler
 
 +trimmomatic
 @/root/src/karyon/dependencies/Trimmomatic-0.36/
@@ -34,7 +35,7 @@
 @/root/src/karyon/dependencies/picard-tools-1.78/
 
 +GATK
-@/users/tg/mnaranjo/scripts_and_stuff/gatk-4.1.0.0/
+@/root/src/karyon/dependencies/gatk-4.0.12.0/gatk
 
 +BWA
 @
