@@ -1,2 +1,0 @@
-/home/mnaranjo/users/tg/mnaranjo/testsDockerKaryon/Saccharomyces_bayanus/CBS380_trimmed_1.fq.tar.gz	98	7.2389053730519235	1293582725	64	1	/home/mnaranjo/users/tg/mnaranjo/testsDockerKaryon/Saccharomyces_bayanus/CBS380_trimmed_2.fq.tar.gz	fastq	gzip
-/home/mnaranjo/users/tg/mnaranjo/testsDockerKaryon/Saccharomyces_bayanus/CBS380_trimmed_2.fq.tar.gz	98	7.817316160934007	1292997152	64	2	/home/mnaranjo/users/tg/mnaranjo/testsDockerKaryon/Saccharomyces_bayanus/CBS380_trimmed_1.fq.tar.gz	fastq	gzip

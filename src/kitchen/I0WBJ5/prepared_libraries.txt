@@ -1,2 +1,0 @@
-/home/mnaranjo/users/tg/mnaranjo/hybridization/Lichteimia_ramosa/Libraries/4FSU10000-5kbMP_R1_clipped_trimmed.fastq	172	97.17123905636893	43329133	33	1	/home/mnaranjo/users/tg/mnaranjo/hybridization/Lichteimia_ramosa/Libraries/4FSU10000-5kbMP_R2_clipped_trimmed.fastq	fastq	no-compression
-/home/mnaranjo/users/tg/mnaranjo/hybridization/Lichteimia_ramosa/Libraries/4FSU10000-5kbMP_R2_clipped_trimmed.fastq	176	99.10616263361224	44007751	33	2	/home/mnaranjo/users/tg/mnaranjo/hybridization/Lichteimia_ramosa/Libraries/4FSU10000-5kbMP_R1_clipped_trimmed.fastq	fastq	no-compression
